@@ -15,14 +15,27 @@ const status = computed(() => {
         "Winner: " + winner :
         "Next player: " + (xIsNext.value ? 'X':'O')
 });
+const moves = computed(() => {
+    return history.map((step, move) => {
+        const desc = move ? 
+        "Move #" + move + " (" + step.coordinationX + "," + step.coordinationY + ")" :
+        "Start"
+        return desc;
+    });
+});
 
 function handleClick(id) {
-    console.log(id);
     if (calculateWinner(current.squares) || current.squares[id]) {
         return;
     }
     current.squares[id] = xIsNext.value ? 'X' : 'O';
     xIsNext.value = !xIsNext.value;
+    history.push({
+        squares: current.squares,
+        coordinationX: calculateColumn(id),
+        coordinationY: calculateRow(id)
+    });
+    stepNumber.value = history.length;
 }
 function calculateWinner(squares) {
     const lines = [
@@ -44,6 +57,44 @@ function calculateWinner(squares) {
     return null;
 }
 
+function calculateColumn(index) {
+  switch (index) {
+    case 0:
+    case 3:
+    case 6:
+      return 1;
+    case 1:
+    case 4:
+    case 7:
+      return 2;
+    case 2:
+    case 5:
+    case 8:
+      return 3;
+    default:
+      return '';
+  }
+}
+
+function calculateRow(index) {
+  switch (index) {
+    case 0:
+    case 1:
+    case 2:
+      return 1;
+    case 3:
+    case 4:
+    case 5:
+      return 2;
+    case 6:
+    case 7:
+    case 8:
+      return 3;
+    default:
+      return '';
+  }
+}
+
 </script>
 <template>
     <div className="game">
@@ -53,5 +104,10 @@ function calculateWinner(squares) {
     </div>
     <div className="game-info">
         <div>{{ status }}</div>
+        <ol>
+            <li v-for="move in moves">
+                {{ move }}
+            </li>
+        </ol>
     </div>
 </template>
