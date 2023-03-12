@@ -1,11 +1,16 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import Board from './Board.vue';
-const squares = ref(Array(9).fill(null));
+const history = reactive([{
+    squares: Array(9).fill(null),
+    coordinationX: null,
+    coordinationY: null
+}]);
 const xIsNext = ref(true);
 const stepNumber = ref(0);
+const current = history[stepNumber.value];
 const status = computed(() => {
-    const winner = calculateWinner(squares.value);
+    const winner = calculateWinner(current.squares);
     return winner ? 
         "Winner: " + winner :
         "Next player: " + (xIsNext.value ? 'X':'O')
@@ -13,10 +18,10 @@ const status = computed(() => {
 
 function handleClick(id) {
     console.log(id);
-    if (calculateWinner(squares.value) || squares.value[id]) {
+    if (calculateWinner(current.squares) || current.squares[id]) {
         return;
     }
-    squares.value[id] = xIsNext.value ? 'X' : 'O';
+    current.squares[id] = xIsNext.value ? 'X' : 'O';
     xIsNext.value = !xIsNext.value;
 }
 function calculateWinner(squares) {
@@ -43,7 +48,7 @@ function calculateWinner(squares) {
 <template>
     <div className="game">
         <div className="game-board">
-            <Board :squares="squares" @handleClick="handleClick"/>
+            <Board :squares="current.squares" @handleClick="handleClick"/>
         </div>
     </div>
     <div className="game-info">
